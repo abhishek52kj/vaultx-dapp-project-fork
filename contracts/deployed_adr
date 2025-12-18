@@ -1,0 +1,16 @@
+Ethereum Mainnet (pending deployment)
+
+VaultXToken    => TBD
+VaultXPresale  => TBD
+
+BSC Testnet (previous ELO deployment - for reference only)
+owner    => 0x5C29099Dc53ddf3b3Fa3a299C48EC1Bff9C59d29
+token    => 0x6154818f854f5009C5CFa47213C68598E9dE02FA
+presale  => 0xDD1C2603315A0C1ad649819A70451D5529F53398
+
+Presale config:
+  token_rate   = 2,000,000 VTX per ETH
+  raise_min    = 0.01 ETH
+  raise_max    = 10 ETH
+  softcap      = 50 ETH
+  hardcap      = 100 ETH
