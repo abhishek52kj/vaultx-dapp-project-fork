@@ -312,7 +312,7 @@ contract VaultXToken is ERC20Burnable, Ownable {
         mintingLocked = true;
         emit MintingLocked(TOTAL_SUPPLY);
     }
-
+    //
     // ── Overrides ────────────────────────────────────────────
 
     /// @dev Revert any future mint attempts — supply is permanently fixed.
