@@ -12,11 +12,21 @@ const Authenticated = ({ library, account }) => {
   const [accountDetailsOpen, setAccountDetailsOpen] = useState(false);
 
   useEffect(() => {
-    if (!library) return;
-    library.getBalance(account).then(bal =>
-      setBalance(parseFloat(ethers.utils.formatUnits(bal, 18)).toFixed(4))
-    );
+    if (!library || !account) return;
+    let cancelled = false;
+
+    library.getBalance(account).then((bal) => {
+      if (!cancelled) {
+        setBalance(parseFloat(ethers.utils.formatUnits(bal, 18)).toFixed(4));
+      }
+    }).catch(() => {
+      if (!cancelled) setBalance('');
+    });
     if (library.provider) setChainId(library.provider.chainId);
+
+    return () => {
+      cancelled = true;
+    };
   }, [library, account]);
 
   return (

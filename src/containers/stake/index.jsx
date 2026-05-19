@@ -1,70 +1,181 @@
-import TokenPools from '../../components/stake/TokenPools';
-import StakeSteps from '../../components/stake/StakeSteps';
-import HowToStake from '../../components/stake/HowToStake';
+import { useMemo, useState } from 'react';
+import { useWeb3React } from '@web3-react/core';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import ParticleCanvas from '../../components/ui/ParticleCanvas';
-
-const APR_DATA=[{l:'7-Day Lock',v:'12.5%',c:'var(--cyan)'},{l:'30-Day Lock',v:'24.8%',c:'var(--violet)'},{l:'90-Day Lock',v:'48.2%',c:'var(--green)'}];
+import PoolSelector from '../../components/stake/PoolSelector';
+import PositionPanel from '../../components/stake/PositionPanel';
+import StakePanel from '../../components/stake/StakePanel';
+import StakeHistory from '../../components/stake/StakeHistory';
+import useStaking from '../../hooks/useStaking';
+import { useWalletConnector } from '../../components/account/WalletConnector';
 
 export default function Stake() {
+  const { account } = useWeb3React();
+  const { loginMetamask } = useWalletConnector();
+  const [activePoolId, setActivePoolId] = useState(0);
+  const staking = useStaking(activePoolId);
+
+  const activePool = useMemo(
+    () => staking.pools.find((pool) => pool.id === activePoolId) || staking.pools[0],
+    [activePoolId, staking.pools]
+  );
+
   return (
-    <div style={{ minHeight:'100vh', background:'var(--ink)' }}>
-      {/* Hero */}
-      <div style={{ position:'relative', paddingTop:140, paddingBottom:80, overflow:'hidden' }}>
-        <div className="grid-bg" style={{ position:'absolute', inset:0 }}/>
-        <ParticleCanvas style={{ opacity:.4 }}/>
-        <div style={{ position:'absolute', right:'-8%', top:'20%', width:700, height:700, borderRadius:'50%', background:'radial-gradient(circle,rgba(123,97,255,.07) 0%,transparent 70%)', pointerEvents:'none', zIndex:2 }}/>
+    <Box sx={{ minHeight: '100vh', background: 'var(--ink)' }}>
+      <Box sx={{ position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--border2)' }}>
+        <Box className="grid-overlay" sx={{ position: 'absolute', inset: 0 }} />
+        <ParticleCanvas style={{ opacity: 0.35 }} />
 
-        <div style={{ maxWidth:1440, margin:'0 auto', padding:'0 60px', position:'relative', zIndex:3 }}>
-          <div className="tag" style={{ marginBottom:20 }}><span>VaultX Protocol</span></div>
-          <h1 style={{ fontFamily:'Bebas Neue,sans-serif', fontSize:'clamp(56px,8vw,100px)', lineHeight:.9, color:'#E8E8F0', letterSpacing:'.02em', marginBottom:20 }}>
-            STAKE $VTX,<br/><span className="neon-v">EARN MORE</span>
-          </h1>
-          <p style={{ fontFamily:'Space Grotesk,sans-serif', fontSize:15, color:'var(--muted)', lineHeight:1.8, maxWidth:520, marginBottom:48 }}>
-            Stake VTX tokens to earn high APR. First approve, then select a lockup period, enter an amount, and stake. 250,000,000 VTX reserved for stakers.
-          </p>
+        <Box
+          sx={{
+            maxWidth: 1440,
+            mx: 'auto',
+            px: { xs: 2, sm: 3, md: 6 },
+            pt: { xs: 14, md: 17 },
+            pb: { xs: 4, md: 7 },
+            position: 'relative',
+            zIndex: 2,
+          }}
+        >
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            justifyContent="space-between"
+            alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+            spacing={3}
+          >
+            <Box>
+              <Typography sx={{ color: 'var(--cyan)', fontSize: 12, letterSpacing: '.18em', textTransform: 'uppercase' }}>
+                VaultX Protocol
+              </Typography>
+              <Typography
+                component="h1"
+                sx={{
+                  color: 'var(--text)',
+                  fontFamily: 'Orbitron, monospace',
+                  fontSize: { xs: 38, sm: 50, md: 66 },
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  mt: 1,
+                }}
+              >
+                VTX Staking
+              </Typography>
+              <Typography sx={{ color: 'var(--muted)', maxWidth: 620, mt: 2, fontSize: 16, lineHeight: 1.7 }}>
+                Live pool state, wallet position, reward accrual, and contract-backed staking actions.
+              </Typography>
+            </Box>
 
-          {/* APR cards */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:14 }}>
-            {APR_DATA.map((a,i)=>(
-              <div key={a.l} style={{ flex:'1 1 160px', padding:'20px 22px', borderRadius:10, background:`${a.c}10`, border:`1px solid ${a.c}30`, animation:`fadeUp .5s ${i*.1}s both` }}>
-                <div style={{ fontFamily:'Fira Code,monospace', fontSize:8, color:a.c, letterSpacing:'.18em', textTransform:'uppercase', marginBottom:8 }}>{a.l}</div>
-                <div style={{ fontFamily:'Bebas Neue,sans-serif', fontSize:40, color:a.c, letterSpacing:'.04em', lineHeight:1, textShadow:`0 0 20px ${a.c}60` }}>{a.v}</div>
-                <div style={{ fontFamily:'Fira Code,monospace', fontSize:8, color:'var(--dim)', letterSpacing:'.1em', marginTop:4 }}>APR</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              {!account && (
+                <Button variant="contained" onClick={loginMetamask}>
+                  Connect Wallet
+                </Button>
+              )}
+              <Button variant="outlined" onClick={staking.refetch} disabled={staking.isLoading}>
+                Refresh
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
+      </Box>
 
-      {/* Content */}
-      <div style={{ maxWidth:1440, margin:'0 auto', padding:'0 60px 100px', display:'flex', flexWrap:'wrap', gap:48, alignItems:'flex-start' }}>
-        {/* Left */}
-        <div style={{ flex:'1 1 420px' }}>
-          {/* Property image */}
-          <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid rgba(123,97,255,.15)', marginBottom:32 }}>
-            <div style={{ position:'relative', height:200 }}>
-              <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80" alt="Staking" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(5,5,16,.9),transparent)' }}/>
-              <div style={{ position:'absolute', bottom:16, left:20 }}>
-                <div style={{ fontFamily:'Fira Code,monospace', fontSize:8, color:'var(--violet)', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:5 }}>Staking Rewards Pool</div>
-                <div style={{ fontFamily:'Bebas Neue,sans-serif', fontSize:22, color:'#E8E8F0', letterSpacing:'.04em' }}>250,000,000 VTX Reserved</div>
-              </div>
-            </div>
-          </div>
+      <Box sx={{ maxWidth: 1440, mx: 'auto', px: { xs: 2, sm: 3, md: 6 }, py: { xs: 3, md: 6 } }}>
+        <Stack spacing={3}>
+          {!staking.hasAddresses && (
+            <MuiAlert severity="warning" variant="outlined">
+              Configure VITE_TOKEN_ADDRESS and VITE_STAKING_ADDRESS to enable live staking reads and writes.
+            </MuiAlert>
+          )}
 
-          <h3 style={{ fontFamily:'Bebas Neue,sans-serif', fontSize:28, color:'var(--violet)', letterSpacing:'.06em', marginBottom:16 }}>HOW TO STAKE</h3>
-          <StakeSteps />
-          <div style={{ marginTop:28 }}><HowToStake /></div>
-        </div>
+          {staking.walletNetworkMismatch && (
+            <MuiAlert severity="warning" variant="outlined">
+              MetaMask is connected to a different chain. Switch to chain {staking.configuredChainId} before staking,
+              unstaking, or claiming rewards.
+            </MuiAlert>
+          )}
 
-        {/* Right: Staking pool */}
-        <div style={{ flex:'0 1 440px' }}>
-          <h3 style={{ fontFamily:'Bebas Neue,sans-serif', fontSize:28, color:'var(--cyan)', letterSpacing:'.06em', marginBottom:16 }}>STAKING POOL</h3>
-          <TokenPools />
-        </div>
-      </div>
+          <PoolSelector
+            pools={staking.pools}
+            activePoolId={activePoolId}
+            onSelect={setActivePoolId}
+            isLoading={staking.isLoading}
+            formatTokenAmount={staking.formatTokenAmount}
+            tokenSymbol={staking.tokenSymbol}
+          />
 
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
-    </div>
+          <Grid container spacing={3} alignItems="flex-start">
+            <Grid item xs={12} lg={8}>
+              <Stack spacing={3}>
+                <PositionPanel
+                  account={account}
+                  pool={activePool}
+                  stakerInfo={staking.stakerInfo}
+                  pendingRewards={staking.pendingRewards}
+                  isLoading={staking.isLoading}
+                  formatTokenAmount={staking.formatTokenAmount}
+                  tokenSymbol={staking.tokenSymbol}
+                />
+                <StakeHistory
+                  account={account}
+                  history={staking.history}
+                  isLoading={staking.isHistoryLoading}
+                  formatTokenAmount={staking.formatTokenAmount}
+                  tokenSymbol={staking.tokenSymbol}
+                  onRefresh={staking.refetchHistory}
+                />
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} lg={4}>
+              <StakePanel
+                pool={activePool}
+                account={account}
+                vtxBalance={staking.vtxBalance}
+                stakerInfo={staking.stakerInfo}
+                pendingRewards={staking.pendingRewards}
+                pendingAction={staking.pendingAction}
+                approve={staking.approve}
+                stake={staking.stake}
+                unstake={staking.unstake}
+                claim={staking.claim}
+                needsApproval={staking.needsApproval}
+                walletNetworkMismatch={staking.walletNetworkMismatch}
+                formatTokenAmount={staking.formatTokenAmount}
+                parseTokenAmount={staking.parseTokenAmount}
+                tokenSymbol={staking.tokenSymbol}
+              />
+            </Grid>
+          </Grid>
+        </Stack>
+      </Box>
+
+      <Snackbar
+        open={Boolean(staking.error)}
+        autoHideDuration={7000}
+        onClose={staking.clearError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <MuiAlert severity="error" variant="filled" onClose={staking.clearError}>
+          {staking.error}
+        </MuiAlert>
+      </Snackbar>
+
+      <Snackbar
+        open={Boolean(staking.success)}
+        autoHideDuration={7000}
+        onClose={staking.clearSuccess}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <MuiAlert severity="success" variant="filled" onClose={staking.clearSuccess}>
+          {staking.success}
+        </MuiAlert>
+      </Snackbar>
+    </Box>
   );
 }

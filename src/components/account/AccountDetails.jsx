@@ -1,4 +1,5 @@
 import Dialog from '@mui/material/Dialog';
+import { useState } from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
@@ -22,11 +23,18 @@ const resetLocalStorage = () => {
 
 const AccountDetails = ({ accountDetailsDialogOpen, handleAccountDetailsDialogToggle, data }) => {
   const { logoutWalletConnector } = useWalletConnector();
+  const [logoutAfterClose, setLogoutAfterClose] = useState(false);
 
   const handleLogout = () => {
-    logoutWalletConnector();
-    handleAccountDetailsDialogToggle();
+    setLogoutAfterClose(true);
     resetLocalStorage();
+    handleAccountDetailsDialogToggle();
+  };
+
+  const handleExited = () => {
+    if (!logoutAfterClose) return;
+    setLogoutAfterClose(false);
+    logoutWalletConnector();
   };
 
   const Row = ({ label, children }) => (
@@ -43,6 +51,7 @@ const AccountDetails = ({ accountDetailsDialogOpen, handleAccountDetailsDialogTo
       open={accountDetailsDialogOpen}
       onClose={handleAccountDetailsDialogToggle}
       BackdropProps={{ style: { backgroundColor: 'rgba(8,8,16,0.75)', backdropFilter: 'blur(6px)' } }}
+      TransitionProps={{ onExited: handleExited }}
       fullWidth maxWidth="xs"
     >
       {/* Gold top border */}

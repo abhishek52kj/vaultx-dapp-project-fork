@@ -17,14 +17,16 @@ import ERC20Balance from './components/ERC20Balance';
 import Footer from './components/layout/Footer';
 import MainNavigation from './components/layout/Header/MainNavigation';
 import ParticleCanvas from './components/ui/ParticleCanvas';
+import { useWalletLifecycle } from './components/account/WalletConnector';
 
 import 'antd/dist/reset.css';
 
 const App = () => {
   const { library, account } = useWeb3React();
+  useWalletLifecycle();
 
   useEffect(() => {
-    if (library) localStorage.setItem('connected', true);
+    if (library && account) localStorage.setItem('connected', true);
   }, [library, account]);
 
   return (

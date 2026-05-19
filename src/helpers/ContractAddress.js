@@ -17,5 +17,5 @@ export const CONTRACT_ADDRESS = {
   ERC_721: import.meta.env.VITE_NFT_ADDRESS || '',
 
   // Staking contract — set when the staking contract is deployed
-  // STAKING_ADDRESS: import.meta.env.VITE_STAKING_ADDRESS || '',
+  STAKING_ADDRESS: import.meta.env.VITE_STAKING_ADDRESS || '',
 };

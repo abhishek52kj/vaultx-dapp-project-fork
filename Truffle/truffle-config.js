@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   // Uncommenting the defaults below
   // provides for an easier quick-start with Ganache.
@@ -12,6 +14,22 @@ module.exports = {
       chainId: 1337,
       network_id: 1337,
       deploymentPollingInterval: 10,
+    },
+  },
+  contracts_directory: path.resolve(__dirname, 'contracts'),
+  contracts_build_directory: path.resolve(__dirname, 'build/contracts'),
+  migrations_directory: path.resolve(__dirname, 'migrations'),
+  test_directory: path.resolve(__dirname, 'test'),
+  compilers: {
+    solc: {
+      version: '0.8.20',
+      settings: {
+        evmVersion: 'paris',
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+      },
     },
   },
   //

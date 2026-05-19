@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import rollupNodePolyFill from 'rollup-packages-polyfill-core';
+import react from '@vitejs/plugin-react';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
@@ -9,18 +9,16 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins: [
-      react({
-        jsxImportSource: 'react',
-        tsDecorators: true,
-        swcOptions: {
-          jsc: {
-            transform: {
-              react: { runtime: 'automatic' }
-            }
-          }
-        }
-      }),
-      rollupNodePolyFill.checkPlugin()
+      react({ jsxRuntime: 'automatic' }),
+      nodePolyfills({
+        exclude: ['vm'],
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true,
+        },
+        protocolImports: true,
+      })
     ],
 
     define: {
@@ -39,6 +37,7 @@ export default defineConfig(({ command, mode }) => {
         util: 'util',
         assert: 'assert',
         process: 'process/browser',
+        vm: '/src/shims/empty.js',
 
         // project aliases
         assets: '/src/assets',
@@ -69,9 +68,18 @@ export default defineConfig(({ command, mode }) => {
     },
 
     build: {
-      sourcemap: true,
+      chunkSizeWarningLimit: 10000,
+      sourcemap: false,
       rollupOptions: {
-        plugins: [rollupNodePolyFill()]
+        onwarn(warning, warn) {
+          if (
+            warning.code === 'INVALID_ANNOTATION' &&
+            warning.id?.includes('@walletconnect/qrcode-modal')
+          ) {
+            return;
+          }
+          warn(warning);
+        }
       }
     },
 

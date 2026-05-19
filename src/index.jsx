@@ -8,6 +8,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { MoralisProvider } from 'react-moralis';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const APP_ID = import.meta.env.VITE_MORALIS_APP_ID || '';
 const SERVER_URL = import.meta.env.VITE_MORALIS_SERVER_URL || '';
@@ -49,7 +50,9 @@ const Application = () => (
       <MoralisDappProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline/>
-          <App/>
+          <ErrorBoundary>
+            <App/>
+          </ErrorBoundary>
         </ThemeProvider>
       </MoralisDappProvider>
     </Web3ReactProvider>
