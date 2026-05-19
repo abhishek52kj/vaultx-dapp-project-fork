@@ -12,6 +12,8 @@ var CONTRACTS = [
   ['VaultXPresale.json', 'contractInfo.json'],
   ['VaultXStaking.json', 'VaultXStaking.json'],
   ['VaultXVesting.json', 'VaultXVesting.json'],
+  ['VaultXRentalYield.json', 'VaultXRentalYield.json'],
+  ['VaultXPropertyNFT.json', 'VaultXPropertyNFT.json'],
 ];
 
 CONTRACTS.forEach(([sourceFile, destFile]) => {

@@ -18,4 +18,7 @@ export const CONTRACT_ADDRESS = {
 
   // Staking contract — set when the staking contract is deployed
   STAKING_ADDRESS: import.meta.env.VITE_STAKING_ADDRESS || '',
+
+  // Rental-yield distribution contract — set when deployed
+  RENTAL_YIELD_ADDRESS: import.meta.env.VITE_RENTAL_YIELD_ADDRESS || '',
 };

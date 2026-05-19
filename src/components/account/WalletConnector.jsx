@@ -72,7 +72,14 @@ export function useWalletConnector() {
     return true;
   };
 
-  return { loginMetamask, loginWalletConnect, loginBSC, logoutWalletConnector, connError };
+  return {
+    loginMetamask,
+    loginWalletConnect,
+    loginBSC,
+    logoutWalletConnector,
+    connError,
+    clearConnError: () => setConnError(null),
+  };
 }
 
 export function useWalletLifecycle() {

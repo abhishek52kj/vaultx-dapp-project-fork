@@ -16,6 +16,13 @@
   --muted: #4A7A9B;
   --lime: #C8E63A;
   --gold: #FFD700;
+  --danger: #FF4444;
+  --success: #00FF88;
+  --panel: rgba(6,16,32,0.82);
+  --panel-strong: rgba(6,16,32,0.95);
+  --overlay: rgba(2,3,9,0.82);
+  --shadow-cyan: rgba(0,212,255,0.28);
+  --shadow-strong: rgba(0,0,0,0.55);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -111,17 +111,33 @@ contract('VaultXStaking', (accounts) => {
     const amount = toBN(toWei('100'));
     await token.approve(staking.address, amount, { from: staker });
     await staking.stake(0, amount, { from: staker });
+    const info = await staking.getStakerInfo(0, staker);
+    const stakeTimestamp = Number(info.lastStakeTime);
     await increaseTime(365 * 24 * 60 * 60);
 
     const pending = toBN(await staking.pendingRewards(0, staker));
-    const expected = amount.mul(toBN(1250)).div(toBN(10000));
-    assert.equal(pending.toString(), expected.toString());
+    const viewElapsed = (await latestTimestamp()) - stakeTimestamp;
+    const expectedPending = amount
+      .mul(toBN(1250))
+      .mul(toBN(viewElapsed))
+      .div(toBN(10000))
+      .div(toBN(365 * 24 * 60 * 60));
+    assert.equal(pending.toString(), expectedPending.toString());
 
     const before = toBN(await token.balanceOf(staker));
-    await staking.claimRewards(0, { from: staker });
+    const tx = await staking.claimRewards(0, { from: staker });
     const after = toBN(await token.balanceOf(staker));
+    const claimBlock = await web3.eth.getBlock(tx.receipt.blockNumber);
+    const claimElapsed = Number(claimBlock.timestamp) - stakeTimestamp;
+    const expectedClaimed = amount
+      .mul(toBN(1250))
+      .mul(toBN(claimElapsed))
+      .div(toBN(10000))
+      .div(toBN(365 * 24 * 60 * 60));
 
-    assert.equal(after.sub(before).toString(), expected.toString());
+    assert.equal(tx.logs[0].event, 'RewardsClaimed');
+    assert.equal(tx.logs[0].args.amount.toString(), expectedClaimed.toString());
+    assert.equal(after.sub(before).toString(), expectedClaimed.toString());
     assert.equal((await staking.pendingRewards(0, staker)).toString(), '0');
   });
 
